@@ -1,0 +1,63 @@
+services:
+  house-fight:
+    image: house-fight:local
+    build:
+      context: .
+    init: true
+    restart: unless-stopped
+    working_dir: /app
+    user: node
+    ports:
+      - "4242:4242"
+    environment:
+      GAME_DATA_DIR: /data
+      GAME_BACKUP_DIR: /backups
+      ADMIN_KEY: ${ADMIN_KEY:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
+    volumes:
+      - type: volume
+        source: house-fight-private-data
+        target: /data
+      - type: volume
+        source: house-fight-private-backups
+        target: /backups
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  house-fight-tools:
+    profiles: [tools]
+    image: house-fight:local
+    build:
+      context: .
+    init: true
+    working_dir: /app
+    user: node
+    command: ["node", "dist-server/scripts/backup.js"]
+    environment:
+      GAME_DATA_DIR: /data
+      GAME_BACKUP_DIR: /backups
+    volumes:
+      - type: volume
+        source: house-fight-private-data
+        target: /data
+      - type: volume
+        source: house-fight-private-backups
+        target: /backups
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  house-fight-private-data:
+    name: house-fight-private-data
+  house-fight-private-backups:
+    name: house-fight-private-backups

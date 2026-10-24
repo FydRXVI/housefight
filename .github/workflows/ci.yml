@@ -1,0 +1,66 @@
+name: release-gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: house-fight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 11.5.0
+          run_install: false
+
+      - name: Install Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Deterministic install
+        run: pnpm install --frozen-lockfile
+
+      - name: Dependency security and peers
+        run: |
+          pnpm audit
+          pnpm run audit:high
+          pnpm peers check
+
+      - name: Static and engine gates
+        run: |
+          pnpm run lint
+          pnpm run typecheck
+          pnpm test
+          pnpm run build
+
+      - name: Server and protocol smoke test
+        run: |
+          HOST=127.0.0.1 NODE_ENV=production node dist-server/server/index.js > /tmp/house-fight-server.log 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl --fail --silent http://127.0.0.1:4242/api/health >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:4242/api/health
+          pnpm run smoke
+
+      - name: Production image
+        run: docker build --tag house-fight:${{ github.sha }} .

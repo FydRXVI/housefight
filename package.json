@@ -1,0 +1,52 @@
+{
+  "name": "house-fight",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch server/index.ts",
+    "build": "tsc -b && vite build",
+    "start": "NODE_ENV=production node dist-server/server/index.js",
+    "typecheck": "tsc -b --pretty false",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "simulate": "tsx scripts/simulate.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "backup": "tsx scripts/backup.ts",
+    "backup:verify": "tsx scripts/verify-backup.ts",
+    "restore": "tsx scripts/restore.ts",
+    "backup:prod": "node dist-server/scripts/backup.js",
+    "backup:verify:prod": "node dist-server/scripts/verify-backup.js",
+    "restore:prod": "node dist-server/scripts/restore.js",
+    "deps:check": "pnpm outdated --long",
+    "audit:high": "pnpm audit --audit-level high"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sharp": "0.35.5",
+    "ws": "8.21.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.2.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@types/ws": "8.18.1",
+    "@vitejs/plugin-react": "6.0.5",
+    "eslint": "10.8.1",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.4",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.67.0",
+    "vite": "8.2.4",
+    "vitest": "4.1.12"
+  }
+}
