@@ -1,4 +1,4 @@
-FROM node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 AS build
+FROM node:25-alpine@sha256:bdf2cca6fe3dabd014ea60163eca3f0f7015fbd5c7ee1b0e9ccb4ced6eb02ef4 AS build
 
 WORKDIR /app
 RUN npm install --global pnpm@11.5.0
@@ -9,7 +9,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build && pnpm prune --prod
 
-FROM node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43 AS runtime
+FROM node:25-alpine@sha256:bdf2cca6fe3dabd014ea60163eca3f0f7015fbd5c7ee1b0e9ccb4ced6eb02ef4 AS runtime
 
 ENV NODE_ENV=production \
     CONTAINERIZED=true \
